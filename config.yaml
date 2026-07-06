@@ -1,0 +1,183 @@
+# Research Agent — Hermes profile configuration
+#
+# Part of the Hermes Research Curriculum at Bronx Science.
+# Authoritative source: https://github.com/ScottSavaiano/research-agent
+#
+# Ships alongside SOUL.md and distribution.yaml. On `hermes profile update`,
+# config.yaml is preserved by default; pass --force-config to reset it to the
+# repo version (and re-run student-install.sh to set terminal.cwd).
+#
+# NOTE: the agent cannot edit this file with its own tools (Hermes refuses
+# patch/write_file on config.yaml). Change settings with `hermes --profile
+# research-agent config set <key> <value>`. Edits apply on the next `/new` session.
+#
+# -------------------------------------------------------------------
+# Lineage: modeled on project-mentor/config.yaml v0.3.3 (2026-06-23).
+# The model strategy is PROGRAM-WIDE (decision-history §11): Daily = Gemma 4 26B,
+# careful/Wizard = Kimi K2.6, all aux pinned to Gemma, ZDR via account guardrails.
+# TWO research-agent-specific differences from the mentor (decided 2026-06-23):
+#   1. delegation.model is PINNED to gemma-4-26b (the research agent delegates
+#      heavily; pinning keeps the many subagent calls cheap even during a
+#      /model careful escalation). The mentor now ALSO pins this defensively (v0.3.6, 2026-06-25);
+#      the research agent was pinned first (v0.1.0) because it delegates heavily.
+#   2. agent.reasoning_effort: high (research does hard methodology work). As of
+#      2026-06-23 this is PROGRAM-WIDE — project-mentor (v0.3.4) and teacher-admin
+#      are also high — so only the delegation pin (1) still distinguishes this profile.
+# -------------------------------------------------------------------
+# Version 0.1.0 (2026-06-23): first research-agent config. Pins identical to
+#   project-mentor v0.3.5 (provider_routing [nextbit, siliconflow, modelrun] — Kimi fp8 primary
+#   + fast fp4 fallback; 14 aux on Gemma; reasoning_effort high) plus the delegation pin above.
+#
+# Verified 2026-06-27 (Cowork) against project-mentor v0.3.6 and decision-history §11: pins are
+#   current and correct. The 2026-06-27 GLM-5.2 bake-off changed ONLY the review-agent careful tier
+#   (→ z-ai/glm-5.2, Io Net fp8); mentor + research careful stay Kimi K2.6 — no change here.
+#   Comment accuracy fixed: the mentor now ALSO pins delegation.model defensively (v0.3.6,
+#   2026-06-25), so the two profiles have converged on a pinned Gemma delegation floor.
+#
+# Version 0.2.0 (2026-07-01, Cowork): added the **`background_review`** auxiliary slot
+#   (the 15th — the post-turn self-improvement review), pinned to Gemma like the other 14,
+#   after the v0.17.0 memory docs surfaced it (it defaults to auto/inherit, so an un-pinned
+#   `/model careful` session would have run every post-turn review on the Wizard tier).
+#   Source-verified against agent/background_review.py (decision-log 2026-07-01). Ships with
+#   the Tier-2 profile landing (distribution v0.2.0).
+
+# -------------------------------------------------------------------
+# Main model — Daily tier (Gemma 4 26B via OpenRouter)
+# -------------------------------------------------------------------
+# The everyday/startup model. Private (ZDR + account guardrails), low-cost.
+model:
+  provider: openrouter
+  default: google/gemma-4-26b-a4b-it
+  base_url: ''
+  api_mode: chat_completions
+  # Switches (picker or /model) are SESSION-ONLY — they do NOT rewrite this file.
+  persist_switch_by_default: false
+
+# -------------------------------------------------------------------
+# Reasoning — ON at full strength; hide the trace from students
+# -------------------------------------------------------------------
+# `agent.reasoning_effort: high` is now program-wide (mentor v0.3.4 + teacher-admin also
+# high; set here too). It is global across whatever model the picker selects —
+# verified `chat_completions.py:338-351` maps it to Kimi's top-level reasoning_effort.
+# It strengthens the Kimi careful tier on hard methodology work but ALSO adds thinking-
+# token cost on every Gemma daily turn (cannot be scoped per-tier). Measured 2026-06-23:
+# on Gemma low≈medium≈high — the cost is reasoning ON vs OFF (~2x completion), so 'high'
+# costs ~nothing over 'medium'. Never set it to `none` (disables thinking, dumbs the model
+# down). `display.show_reasoning:
+# false` hides the recap from students (display-only; the model still reasons).
+agent:
+  reasoning_effort: high
+display:
+  show_reasoning: false
+
+# -------------------------------------------------------------------
+# Fallback model — single-shot rescue if the Daily model errors
+# -------------------------------------------------------------------
+# A different-vendor rescue (Gemma→Gemma is useless once Gemma is the main).
+# Plain id (Hermes has no @preset). ZDR via account-level enforcement.
+fallback_model:
+  provider: openrouter
+  model: moonshotai/kimi-k2.6
+
+# -------------------------------------------------------------------
+# Provider routing — Gemma→NextBit; Kimi→SiliconFlow (fp8) + ModelRun fast fallback
+# -------------------------------------------------------------------
+# Top-level `provider_routing` (verified cli.py:3608) → OpenRouter `extra_body.provider`.
+# There is ONE `order` list per profile — a single global preferred-provider chain for
+# ALL models. OpenRouter picks the first listed provider that serves the requested model:
+#   - nextbit     → Gemma daily. bf16, 99.7% uptime; serves Gemma but NOT Kimi — so it cannot
+#                   hijack the Kimi pin (Novita would — it serves both).
+#   - siliconflow → Kimi careful PRIMARY. The only fp8 Kimi K2.6 endpoint (rest int4/fp4/unknown),
+#                   ZDR — chosen for quality. BUT measured 2026-06-23 the slowest + least reliable
+#                   Kimi endpoint of 20 (TTFT p50 5.9s, 26 tok/s, 89% uptime): ~30s answers, ~11% fail.
+#   - modelrun    → Kimi careful FALLBACK. fp4, ZDR, 0.5s TTFT, 87 tok/s, 99.9% uptime, reasoning-capable
+#                   (6/6 verified). Deterministic fast rescue for SiliconFlow's downtime. Most "listed"
+#                   Kimi providers ERROR with reasoning ON (DeepInfra, Parasail) — only ModelRun + Together
+#                   passed; ModelRun chosen (confirmed fp4 vs unknown, cheaper). fp4 fallback = a quant step
+#                   below fp8, acceptable on the rare outage path.
+# allow_fallbacks stays ON (default). Use `order`, NOT `only`. Slugs verified to route 2026-06-23.
+# CAVEAT — "one pin per profile": because `order` is global, a Gemma provider that ALSO served
+# Kimi (Novita does) would force Kimi onto it and break the fp8 pin. NextBit (Gemma-only) avoids
+# that. Does NOT propagate to aux slots (independent, by Hermes design).
+provider_routing:
+  order:
+    - nextbit       # Gemma daily — bf16, 99.7% uptime; does NOT serve Kimi (keeps the pins separate)
+    - siliconflow   # Kimi careful PRIMARY — fp8 (best quant, but slow: 5.9s TTFT, 89% uptime)
+    - modelrun      # Kimi careful FALLBACK — fp4, fast (0.5s TTFT), 99.9% uptime, reasoning-capable
+
+# -------------------------------------------------------------------
+# Model aliases — student vocabulary for /model
+# -------------------------------------------------------------------
+model_aliases:
+  default:
+    provider: openrouter
+    model: google/gemma-4-26b-a4b-it
+  careful:
+    provider: openrouter
+    model: moonshotai/kimi-k2.6
+
+# -------------------------------------------------------------------
+# Delegation — the model subagents (delegate_task) run on
+# -------------------------------------------------------------------
+# PINNED to Gemma (research-agent-specific decision 2026-06-23). The research agent
+# delegates heavily, so subagents always run cheap on gemma-4-26b regardless of the main
+# tier — a /model careful escalation will NOT drag the many subagent calls up to Kimi.
+# (The mentor now also pins this defensively as of v0.3.6; the research agent pinned it first
+# because it delegates heavily.) Verified delegate_tool.py: effective_model = delegation.model
+# or parent_agent.model.
+delegation:
+  provider: openrouter
+  model: google/gemma-4-26b-a4b-it
+
+# -------------------------------------------------------------------
+# Auxiliary task slots — all 15 pinned to Gemma 4 26B
+# -------------------------------------------------------------------
+# Pinned explicitly (not auto/inherit) so a `/model careful` upgrade never bleeds the
+# background jobs up to the Wizard tier. Hermes exposes 14 GUI/aux slots, PLUS
+# `background_review` (the post-turn self-improvement review), added 2026-07-01 from the
+# v0.17.0 memory docs — it also defaults to auto/inherit, so without this pin a
+# `/model careful` session would run every post-turn review on the Wizard tier too.
+# NOTE: aux `curator` here is the aux-job *model* slot, distinct from the top-level
+# `curator.enabled` below; likewise `background_review` is the review job's *model*.
+auxiliary:
+  vision:             { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  web_extract:        { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  compression:        { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  skills_hub:         { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  approval:           { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  mcp:                { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  title_generation:   { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  tts_audio_tags:     { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  triage_specifier:   { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  kanban_decomposer:  { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  profile_describer:  { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  curator:            { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  monitor:            { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  session_search:     { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+  background_review:  { provider: openrouter, model: google/gemma-4-26b-a4b-it }
+
+# -------------------------------------------------------------------
+# Prompt caching — 1-hour TTL (Claude-only mechanism; moot here)
+# -------------------------------------------------------------------
+# Every tier here is non-Claude (Gemma / Kimi), so nothing auto-caches. Harmless; kept
+# for consistency across profiles.
+prompt_caching:
+  cache_ttl: "1h"
+
+# -------------------------------------------------------------------
+# Terminal — shared workspace (student-install.sh rewrites cwd)
+# -------------------------------------------------------------------
+# Same student workspace as the mentor — all agents operate on one workspace.
+terminal:
+  backend: local
+  cwd: /CHANGE_ME/research-curriculum
+  timeout: 180
+
+# -------------------------------------------------------------------
+# Curator (top-level) — skill-pruning curator, disabled on student profiles
+# -------------------------------------------------------------------
+# Distinct from auxiliary.curator above (that's the model the curator job uses). This
+# switch disables the curator's skill-pruning (the `prune_builtins` behavior, default true; v0.16.0+, re-confirmed v0.17.0) so rarely-invoked curriculum skills
+# aren't pruned.
+curator:
+  enabled: false

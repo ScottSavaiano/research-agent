@@ -1,0 +1,103 @@
+# Research Agent — Hermes profile distribution manifest
+#
+# Packages this profile as an installable Hermes agent. Anyone with access
+# to the GitHub repo can install the whole agent — SOUL, config, skills,
+# cron — with one command:
+#
+#     hermes profile install github.com/ScottSavaiano/research-agent --alias
+#
+# When the educator tags a new version, students run:
+#
+#     hermes profile update research-agent
+#
+# …and their installed research agent updates to the new SOUL and skills while
+# their own conversation history, memories, and config tuning are preserved.
+
+# -------------------------------------------------------------------
+# Identity
+# -------------------------------------------------------------------
+
+name: research-agent
+
+# Version follows semver. v0.x while the agent is still being built out;
+# v1.0.0 is reserved for the first release that ships all Tier 2 skills.
+version: 0.2.0
+# Changelog:
+#   0.2.0 (2026-07-01) — Tier-2 FOUNDATIONAL SET landing: the full foundational skill
+#     inventory below (operationalize-construct, the literature-review trio, both
+#     execution data skills, redirect-off-topic, and the re-bundles) + SOUL voice-read
+#     applied + config `background_review` aux pin (15th slot, v0.17.0). Still v0.x —
+#     v1.0.0 is reserved for the release that adds the remaining Tier-2 analysis skills.
+#   0.1.0 (2026-06-23) — first research-agent manifest.
+
+description: |
+  Research Agent — executes research methodology alongside the student
+  within a cycle of the Hermes Research Curriculum at Bronx Science.
+  Sources and prepares data, runs analysis (Python preferred, R
+  acceptable), and supports the build-as-you-go working paper. One of
+  three agents in the curriculum (with project-mentor and review-agent).
+  Daily tier = Gemma 4 26B; careful tier = Kimi K2.6 via /model careful.
+
+author: "Dr. Savaiano (Bronx High School of Science Social Science Research Program)"
+license: "MIT"
+
+# Minimum Hermes version. >=0.17.0 floor (matches the value below) — the curriculum
+# relies on v0.16.0+ features (desktop app, session event hooks, bundled Google
+# Workspace OAuth skill), the v0.15.x skill-protection guarantees, and the v0.17.0
+# baseline the program standardized on (primer §9, floor raised 2026-06-24). Matches
+# the floor applied to the project-mentor manifest. See hermes-platform-primer.md §9.
+hermes_requires: ">=0.17.0"
+
+# -------------------------------------------------------------------
+# Environment variables required for install
+# -------------------------------------------------------------------
+# The installer checks these against the student's shell environment and
+# the profile's existing .env, then generates a .env.EXAMPLE the student
+# copies to .env and fills in. Each student receives a personalized
+# OpenRouter sub-key from the teacher (same key used across all profiles).
+
+env_requires:
+  - name: OPENROUTER_API_KEY
+    description: |
+      Your assigned OpenRouter sub-key for the Hermes Research
+      Curriculum. Issued by the research teacher during setup
+      (Lesson 1) under the cohort's single organization account.
+      Capped at the per-student semester budget. Do not share.
+    required: true
+
+# -------------------------------------------------------------------
+# Distribution-owned paths (defaults are fine; left explicit for clarity)
+# -------------------------------------------------------------------
+# By default, `hermes profile update` REPLACES these paths from the new
+# clone: SOUL.md, skills/, cron/, distribution.yaml. config.yaml
+# is special-cased — it is PRESERVED on update unless --force-config is
+# passed, so a student's machine-specific terminal.cwd survives updates.
+#
+# Excluded from the distribution entirely (Hermes hard-excludes these,
+# no override possible): .env, auth.json, memories/, sessions/, state.db*,
+# logs/, workspace/, plans/, home/, *_cache/, local/. The student's own
+# work and credentials never travel into or out of the repo.
+
+# Skill inventory (current — the foundational Tier-2 set, landing at v0.2.0):
+#
+#   skills/
+#     house-rules/SKILL.md                 # standing conventions
+#     operationalize-construct/SKILL.md    # Stage 6.5 construct operationalization + validity (planning)
+#     literature-discovery/SKILL.md        # OpenAlex/Crossref/Semantic Scholar REST discovery
+#                                          #   (+ scripts/literature_discovery.py, keyless polite-pool)
+#     literature-filter-and-verify/SKILL.md# rank + verify-before-list + 3-way access triage
+#     paper-engagement/SKILL.md            # the nine-item per-article reading summaries
+#     source-and-prepare-data/SKILL.md     # real-data acquisition / clean / QC (execution, Tier 6)
+#     generate-synthetic-data/SKILL.md     # synthetic-data-as-object (execution, Tier 6)
+#     redirect-off-topic/SKILL.md          # research-scoped off-topic parking (X5 weekly reflection)
+#     fetch-articles/SKILL.md              # article staging (re-bundled from mentor; R7a)
+#     check-budget/SKILL.md                # OpenRouter budget view (re-bundled)
+#     project-briefing/SKILL.md            # session-open orientation brief (re-bundled)
+#
+# Not yet built (remaining Tier-2, → v1.0.0): the analysis skills (choose-analysis-method /
+# run-analysis) and the per-shape operationalization/preparation/generation forms
+# (build-as-you-go, filled in as each gold exemplar is completed).
+#
+# No mcp.json in this distribution: literature discovery is a curriculum-owned skill +
+# REST script over OpenAlex / Crossref / Semantic Scholar (keyless polite pool), not a
+# third-party MCP server. Decision-log 2026-06-27.
