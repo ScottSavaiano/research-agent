@@ -21,8 +21,19 @@ name: research-agent
 
 # Version follows semver. v0.x while the agent is still being built out;
 # v1.0.0 is reserved for the first release that ships all Tier 2 skills.
-version: 0.2.0
+version: 0.3.0
 # Changelog:
+#   0.3.0 (2026-07-08) — Execution-model rework + Analysis skill. The four execution/prep
+#     skills (operationalize-construct, source-and-prepare-data, generate-synthetic-data,
+#     and the NEW conduct-analysis) re-authored to the seven-step Plan→Teach→Review-plan→
+#     Approve→Execute→Report→QC-audit model (two Review Agent checkpoints writing dated
+#     files to a reviews/ folder; design/execution-plan-model-2026-07-07.md). SOUL: added
+#     the rigor-only "Where I start with you" tenet and reworked the authorship line to the
+#     precise STS boundary (agent executes/teaches/interprets/judges, disclosed+cited; only
+#     the WRITING is the student's alone). redirect-off-topic: diagnostic-read apparatus
+#     removed; off-topic parking reworded to the weekly-reflection list. "Review Agent"
+#     capitalized as a role name throughout. Still v0.x — v1.0.0 reserved for the release
+#     that adds the remaining Tier-2 per-shape analysis forms.
 #   0.2.0 (2026-07-01) — Tier-2 FOUNDATIONAL SET landing: the full foundational skill
 #     inventory below (operationalize-construct, the literature-review trio, both
 #     execution data skills, redirect-off-topic, and the re-bundles) + SOUL voice-read
@@ -89,14 +100,16 @@ env_requires:
 #     paper-engagement/SKILL.md            # the nine-item per-article reading summaries
 #     source-and-prepare-data/SKILL.md     # real-data acquisition / clean / QC (execution, Tier 6)
 #     generate-synthetic-data/SKILL.md     # synthetic-data-as-object (execution, Tier 6)
+#     conduct-analysis/SKILL.md            # analysis mini-cycle beats → Analysis Journal (execution, Stages 19/23)
 #     redirect-off-topic/SKILL.md          # research-scoped off-topic parking (X5 weekly reflection)
 #     fetch-articles/SKILL.md              # article staging (re-bundled from mentor; R7a)
 #     check-budget/SKILL.md                # OpenRouter budget view (re-bundled)
 #     project-briefing/SKILL.md            # session-open orientation brief (re-bundled)
 #
-# Not yet built (remaining Tier-2, → v1.0.0): the analysis skills (choose-analysis-method /
-# run-analysis) and the per-shape operationalization/preparation/generation forms
-# (build-as-you-go, filled in as each gold exemplar is completed).
+# Not yet built (remaining Tier-2, → v1.0.0): the per-shape operationalization/preparation/
+# generation forms (build-as-you-go, filled in as each gold exemplar is completed).
+# (The Analysis stage is now built: `conduct-analysis` — the mini-cycle beats → Analysis Journal,
+# Stages 19/23 — registered above, per design/analysis-journal-2026-07-07.md, 2026-07-07.)
 #
 # No mcp.json in this distribution: literature discovery is a curriculum-owned skill +
 # REST script over OpenAlex / Crossref / Semantic Scholar (keyless polite pool), not a
