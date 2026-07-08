@@ -21,8 +21,15 @@ name: research-agent
 
 # Version follows semver. v0.x while the agent is still being built out;
 # v1.0.0 is reserved for the first release that ships all Tier 2 skills.
-version: 0.3.0
+version: 0.4.0
 # Changelog:
+#   0.4.0 (2026-07-08) — NEW shared skill `maintain-bibliography` (+ co-bundled
+#     scripts/literature_discovery.py): maintains the paper's working bibliography with
+#     human-in-the-loop DOI verification (the student clicks each DOI / confirms each
+#     non-DOI source before it is marked verified; the agent never invents a citation or
+#     field). Full verification runs on student demand + always at weekly journaling; at
+#     session close only bibliography CHANGES are reported. The STS no-AI-generated-citations
+#     compliance mechanism. Source of truth: design/citation-integrity-gate-2026-07-08.md.
 #   0.3.0 (2026-07-08) — Execution-model rework + Analysis skill. The four execution/prep
 #     skills (operationalize-construct, source-and-prepare-data, generate-synthetic-data,
 #     and the NEW conduct-analysis) re-authored to the seven-step Plan→Teach→Review-plan→
@@ -105,6 +112,8 @@ env_requires:
 #     fetch-articles/SKILL.md              # article staging (re-bundled from mentor; R7a)
 #     check-budget/SKILL.md                # OpenRouter budget view (re-bundled)
 #     project-briefing/SKILL.md            # session-open orientation brief (re-bundled)
+#     maintain-bibliography/SKILL.md       # shared working-bibliography maintenance + human-in-loop DOI verify
+#                                          #   (+ co-bundled scripts/literature_discovery.py resolve engine)
 #
 # Not yet built (remaining Tier-2, → v1.0.0): the per-shape operationalization/preparation/
 # generation forms (build-as-you-go, filled in as each gold exemplar is completed).
