@@ -21,8 +21,15 @@ name: research-agent
 
 # Version follows semver. v0.x while the agent is still being built out;
 # v1.0.0 is reserved for the first release that ships all Tier 2 skills.
-version: 0.6.0
+version: 0.6.1
 # Changelog:
+#   0.6.1 (2026-07-09) — `check-budget` cost re-verification. Dollar figures re-derived from
+#     OpenRouter's posted per-token pricing (cross-provider average) and costed on the REAL session
+#     shape — the full SOUL (~5K tok) is re-sent every turn and session-start workspace reads persist
+#     in history, so a ~10-turn session bills ~285K input + 5K output tokens. Uncached worst-case:
+#     default (Gemma 4 26B) ~$0.05/session, careful (Kimi K2.6) ~$0.28/consultation. Script constants +
+#     SKILL register examples updated to match; HTTP-Referer localized to the research-agent repo. No
+#     behavioral change.
 #   0.6.0 (2026-07-09) — NEW shared read-only `paper-coverage` skill (coverage view + versions/ archival
 #     snapshot); `project-briefing` now calls `paper-coverage` for its coverage slice. SOUL: added the V3b
 #     session-close nod. `check-budget` refresh — model tiers corrected to Gemma 4 26B daily / Kimi K2.6
