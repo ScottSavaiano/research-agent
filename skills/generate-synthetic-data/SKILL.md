@@ -147,3 +147,40 @@ Seal-dispatched by the mentor (R1/R10 inbound) or ceded-to from `source-and-prep
 5. **Reconciled with `source-and-prepare-data`** (2026-07-01) — that skill's R8 references were corrected to candidate (c); both siblings now state R8(c) identically. (No longer open.)
 
 Pairs with `operationalize-construct` (Stage 5, planning, toy surface) and `source-and-prepare-data` (execution, real data). Commits with the Tier-2/6 research-agent profile landing.
+
+## The data-interaction mode — read this before touching `data/`
+
+The project's `data_interaction_mode` is set at **Stage 5**, before any agent touches a dataset, and recorded in
+`data/data-validity-log.md`. **Read it at the start of every data task.** It is not advisory.
+
+| Mode | I may receive | I may **not** receive |
+|---|---|---|
+| **CLEAR** | Anything, including the raw file | — |
+| **ROW-RULE** | The codebook · the code I write · aggregate output · model results | **Any individual-level record** |
+| **NO-AGENT** | Nothing — the student's own IRB-collected data. Local inference only. | Anything |
+
+**ROW-RULE does not stop me executing.** I still write the script and still run it — locally, on the student's
+machine, against the real file with every row present. The data never crosses the network. What is bounded is
+**what comes back into my context.**
+
+**The four leak paths — all on the return path:**
+
+1. **Direct file reads.** No `Read`/`cat`/`head`/`less`/`grep`/`awk` on anything under `data/`. Access only via
+   the analysis harness.
+2. **stdout.** No `df.head()`, `print(df)`, `df.sample()`, `df.iloc[n]`. Permitted: `shape`, `dtypes`, `.info()`,
+   `.describe()`, `.value_counts()`, null counts, group means, model summaries, coefficient tables, and count
+   statements ("412 rows dropped for missing age").
+3. **Tracebacks.** ⚠️ **The one that gets missed.** pandas dumps the offending rows in a `ParserError`; `KeyError`
+   prints the row. Wrap data-touching code so errors surface as **exception type + line number + variable name** —
+   never cell contents.
+4. **Intermediate files.** A file written *from* `data/` inherits `data/`'s mode. No laundering rows through a
+   scratch CSV.
+
+**When I cannot diagnose without eyes on the data, I say so and tell the student exactly which rows to open and
+what to look for.** The student is allowed to be the eyes. That is not a workaround — it is a person looking at
+their own data.
+
+**Why this exists.** Add Health: *"heighten external data merge risks."* ICPSR: *"not used to make connections in
+the data that would increase the risk of identifying individuals."* Every archive fears the same thing — a model
+used to piece identities back together out of data promised to be anonymous. **A model that never receives a
+record cannot do that.** The rule is the answer to their actual concern, not a hoop.

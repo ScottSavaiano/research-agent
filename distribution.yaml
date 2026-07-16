@@ -21,8 +21,13 @@ name: research-agent
 
 # Version follows semver. v0.x while the agent is still being built out;
 # v1.0.0 is reserved for the first release that ships all Tier 2 skills.
-version: 0.6.2
+version: 0.6.3
 # Changelog:
+#   0.6.3 (2026-07-14) — Data-interaction policy. NEW skill check-data-policy (Stage 5.3): reads a source's
+#     governing terms IN FULL, sets the data_interaction_mode (CLEAR / ROW-RULE / NO-AGENT), default CLEAR. The
+#     four data skills (source-and-prepare-data, conduct-analysis, operationalize-construct, generate-synthetic-data)
+#     carry the three-mode contract: under ROW-RULE the agent writes+runs code locally but never receives an
+#     individual record. SOUL: IRB line corrected (IRB = primary collection the student conducts). Additive.
 #   0.6.2 (2026-07-11) — LICENSE CHANGE: MIT -> CC BY-NC-SA 4.0. Free for any teacher or student
 #     to use and adapt, including for teaching; not for commercial resale; adaptations must stay
 #     open under the same license. Adds LICENSE (full legal code) + NOTICE. No behavioural change

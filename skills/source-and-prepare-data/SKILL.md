@@ -56,6 +56,10 @@ This is the load-bearing difference from `operationalize-construct`, which lives
 
 The three-phase spine below is **menu-agnostic** — access the real data, prepare it, QC it — but what "prepare" concretely produces depends on the method fixed in the Stage-14 methodology (and, per stream, whether this is the core or the extension run). The shapes mirror `operationalize-construct`'s six (same letters, so the two skills line up across planning and execution):
 
+> **Reference — the constructed-datasets source catalog** (`design/constructed-datasets-source-catalog.md`). When a student is **building a primary dataset from scratch** (scraping, API pulls, joining sources), this catalog lists candidate sources organized by the research design each enables, with retrieval notes and licence info.
+>
+> **⚠️ Read it as a starting-point reference only — NOT as settled guidance.** Anything in that catalog touching ethics, sensitivity, or "who might object" is **advisory, non-decisive, and non-gating.** It is not authoritative, not a rule, and never a reason to avoid a source on its own. **The only operative question is the one `check-data-policy` answers at the time the dataset is actually being created: does this source's terms ban LLM use?** Terms and sources change; the catalog is a snapshot; the live check at creation time governs.
+
 **A. Map construct → variable/index in existing data** — *secondary survey/administrative datasets.* Prepare: download the dataset; recode variables, handle missing data, build derived indices, restrict to the analytic sample. QC: distributions/ranges + **reproduce a published benchmark** (a known prevalence or mean). *(Fully specified below — gold exemplar #1; YRBS/MTF lineage.)*
 
 **B. Operationalize the identification** — *quasi-experimental designs on observational data.* Prepare: assemble the identification machinery's **data inputs** — the running variable + cutoff (RD), the treatment-timing panel (DiD), the instrument, the donor pool (synthetic control) — and shape the file so the assumption checks are computable (a clean pre-period, density around the cutoff). The assumption *tests* are analysis; the *data shaped to support them* is here. QC: panel balance, pre-period coverage, cutoff-density sanity. *(Sketch; per-exemplar.)*
@@ -141,3 +145,48 @@ Dispatched by the mentor at the seal (R1/R10 inbound) and re-entered for each st
 5. **`clean-data` struck (RESOLVED 2026-06-29, educator ruling).** Cleaning is owned by Phase 2 here; the standalone `clean-data` (never specified beyond a name in Tier 6) was struck — one skill owns the access→clean→QC arc.
 
 Supersedes `design/research-agent-source-and-prepare-data-DRAFT.md` (marked PROMOTED). Pairs with `operationalize-construct` (Stage 5, planning) and `generate-synthetic-data` (execution, synthetic-as-object).
+
+## The data-interaction mode — read this before touching `data/`
+
+The project's `data_interaction_mode` is set at **Stage 5**, before any agent touches a dataset, and recorded in
+`data/data-validity-log.md`. **Read it at the start of every data task.** It is not advisory.
+
+| Mode | I may receive | I may **not** receive |
+|---|---|---|
+| **CLEAR** | Anything, including the raw file | — |
+| **ROW-RULE** | The codebook · the code I write · aggregate output · model results | **Any individual-level record** |
+| **NO-AGENT** | Nothing — the student's own IRB-collected data. Local inference only. | Anything |
+
+**ROW-RULE does not stop me executing.** I still write the script and still run it — locally, on the student's
+machine, against the real file with every row present. The data never crosses the network. What is bounded is
+**what comes back into my context.**
+
+**The four leak paths — all on the return path:**
+
+1. **Direct file reads.** No `Read`/`cat`/`head`/`less`/`grep`/`awk` on anything under `data/`. Access only via
+   the analysis harness.
+2. **stdout.** No `df.head()`, `print(df)`, `df.sample()`, `df.iloc[n]`. Permitted: `shape`, `dtypes`, `.info()`,
+   `.describe()`, `.value_counts()`, null counts, group means, model summaries, coefficient tables, and count
+   statements ("412 rows dropped for missing age").
+3. **Tracebacks.** ⚠️ **The one that gets missed.** pandas dumps the offending rows in a `ParserError`; `KeyError`
+   prints the row. Wrap data-touching code so errors surface as **exception type + line number + variable name** —
+   never cell contents.
+4. **Intermediate files.** A file written *from* `data/` inherits `data/`'s mode. No laundering rows through a
+   scratch CSV.
+
+**When I cannot diagnose without eyes on the data, I say so and tell the student exactly which rows to open and
+what to look for.** The student is allowed to be the eyes. That is not a workaround — it is a person looking at
+their own data.
+
+**Why this exists.** Add Health: *"heighten external data merge risks."* ICPSR: *"not used to make connections in
+the data that would increase the risk of identifying individuals."* Every archive fears the same thing — a model
+used to piece identities back together out of data promised to be anonymous. **A model that never receives a
+record cannot do that.** The rule is the answer to their actual concern, not a hoop.
+
+### The policy check runs FIRST — see `check-data-policy`
+
+**No dataset is touched until `data_interaction_mode` is set.** The check is a **precondition**, not a finding:
+`check-data-policy` reads the source's terms, quotes the operative clause, sets the mode, and produces the
+evidence notes the student writes up in their weekly journal. It runs at **5.3** (before any candidate dataset is
+tested) and again at **18/22** (at acquisition — terms move, and the door is only fixed when the file is
+downloaded). Read the mode from `data/data-validity-log.md` before doing anything else here.

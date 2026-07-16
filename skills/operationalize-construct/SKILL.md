@@ -198,3 +198,66 @@ Dispatched by the mentor (R13). On clean completion, hands the student back to t
 7. **Escalation policy** — research-agent own `model-escalation` vs. SOUL-prose-only (critique F5.2).
 
 Eventual location: `build/research-agent/skills/operationalize-construct/SKILL.md` (here). Pairs with the re-scoped `source-and-prepare-data` (execution Phases 3–5).
+
+## The data-interaction mode — read this before touching `data/`
+
+The project's `data_interaction_mode` is set at **Stage 5**, before any agent touches a dataset, and recorded in
+`data/data-validity-log.md`. **Read it at the start of every data task.** It is not advisory.
+
+| Mode | I may receive | I may **not** receive |
+|---|---|---|
+| **CLEAR** | Anything, including the raw file | — |
+| **ROW-RULE** | The codebook · the code I write · aggregate output · model results | **Any individual-level record** |
+| **NO-AGENT** | Nothing — the student's own IRB-collected data. Local inference only. | Anything |
+
+**ROW-RULE does not stop me executing.** I still write the script and still run it — locally, on the student's
+machine, against the real file with every row present. The data never crosses the network. What is bounded is
+**what comes back into my context.**
+
+**The four leak paths — all on the return path:**
+
+1. **Direct file reads.** No `Read`/`cat`/`head`/`less`/`grep`/`awk` on anything under `data/`. Access only via
+   the analysis harness.
+2. **stdout.** No `df.head()`, `print(df)`, `df.sample()`, `df.iloc[n]`. Permitted: `shape`, `dtypes`, `.info()`,
+   `.describe()`, `.value_counts()`, null counts, group means, model summaries, coefficient tables, and count
+   statements ("412 rows dropped for missing age").
+3. **Tracebacks.** ⚠️ **The one that gets missed.** pandas dumps the offending rows in a `ParserError`; `KeyError`
+   prints the row. Wrap data-touching code so errors surface as **exception type + line number + variable name** —
+   never cell contents.
+4. **Intermediate files.** A file written *from* `data/` inherits `data/`'s mode. No laundering rows through a
+   scratch CSV.
+
+**When I cannot diagnose without eyes on the data, I say so and tell the student exactly which rows to open and
+what to look for.** The student is allowed to be the eyes. That is not a workaround — it is a person looking at
+their own data.
+
+**Why this exists.** Add Health: *"heighten external data merge risks."* ICPSR: *"not used to make connections in
+the data that would increase the risk of identifying individuals."* Every archive fears the same thing — a model
+used to piece identities back together out of data promised to be anonymous. **A model that never receives a
+record cannot do that.** The rule is the answer to their actual concern, not a hoop.
+
+### ⚠️ Specific to this skill: the "small real sample" is not available under ROW-RULE
+
+This skill stages construct-exploration surfaces in `data/` at **planning time** — a codebook, a labeled toy set,
+or **"a small real sample."**
+
+**A small real sample is rows.** Under **ROW-RULE**, stage the **codebook** and a **synthetic or clearly-labeled
+toy set** instead. Never a real extract, however small — "small" is not an exception in any of these DUAs, and
+this skill runs at Stage 5, which is *earlier* than the stage most people associate with data handling. It is the
+first place the rule can be broken, and the easiest place to break it without noticing.
+
+`generate-synthetic-data` exists partly for this: it can produce a labeled toy set that carries the codebook's
+structure with none of its people.
+
+### The policy check runs FIRST — see `check-data-policy`
+
+**No dataset is touched until `data_interaction_mode` is set.** The check is a **precondition**, not a finding:
+`check-data-policy` reads the source's terms, quotes the operative clause, sets the mode, and produces the
+evidence notes the student writes up in their weekly journal. It runs at **5.3** (before any candidate dataset is
+tested) and again at **18/22** (at acquisition — terms move, and the door is only fixed when the file is
+downloaded). Read the mode from `data/data-validity-log.md` before doing anything else here.
+
+**And the Stage-5 gate does not close with the mode open.** `check-data-policy` must have resolved it — clause
+quoted, URL, date, compliance stated, recorded here in the Data Validity Log and written up by the student in
+their weekly journal. CLEAR, ROW-RULE and NO-AGENT are all fine outcomes; an *unanswered* question travelling
+downstream into the methodology is not.
