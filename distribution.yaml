@@ -21,8 +21,11 @@ name: research-agent
 
 # Version follows semver. v0.x while the agent is still being built out;
 # v1.0.0 is reserved for the first release that ships all Tier 2 skills.
-version: 0.6.3
+version: 0.6.4
 # Changelog:
+#   0.6.4 (2026-07-14) — IRB framing simplified in source-and-prepare-data and generate-synthetic-data: IRB
+#     attaches ONLY to data the student collects directly from human subjects; all public/secondary data is
+#     exempt. Removed the older "consent-to-publicness" wording. No behavioral change.
 #   0.6.3 (2026-07-14) — Data-interaction policy. NEW skill check-data-policy (Stage 5.3): reads a source's
 #     governing terms IN FULL, sets the data_interaction_mode (CLEAR / ROW-RULE / NO-AGENT), default CLEAR. The
 #     four data skills (source-and-prepare-data, conduct-analysis, operationalize-construct, generate-synthetic-data)

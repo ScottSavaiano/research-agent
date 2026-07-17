@@ -66,7 +66,7 @@ The three-phase spine below is **menu-agnostic** — access the real data, prepa
 
 **C. Build a constructed quantity** — *index-building in econometrics / social epi / geo.* Prepare: access the source data, then **construct the object by the stated formula** (rank-rank slope, shift-share exposure, redlining overlay) — the derived-variable step is the heart. QC: reproduce a published value of the constructed quantity; panel balance. *(Sketch; per-exemplar.)*
 
-**D. Measurement-model corpus** — *NLP/computational text; ML-as-measure; networks.* Prepare: **assemble the corpus** (scrape/API under the R7 reachability rules + the consent-to-publicness IRB line), then the **annotation/labeling pipeline + a gold-label set** (text), the feature/target table (ML), or the tie-list + structural measure (networks). QC: inter-annotator reliability / held-out accuracy of the extraction; network homophily-vs-influence sanity. *(Sketch; per-exemplar.)*
+**D. Measurement-model corpus** — *NLP/computational text; ML-as-measure; networks.* Prepare: **assemble the corpus** (scrape/API under the R7 reachability rules; public and secondary data need no IRB), then the **annotation/labeling pipeline + a gold-label set** (text), the feature/target table (ML), or the tie-list + structural measure (networks). QC: inter-annotator reliability / held-out accuracy of the extraction; network homophily-vs-influence sanity. *(Sketch; per-exemplar.)*
 
 **E. Synthetic / simulation — NOT this skill.** *Synthetic AI survey participants, generative-agent simulation.* Here "sourcing data" *is generating it*, and the synthetic data is the **legitimate analyzed object** — a different integrity regime (validated by algorithmic fidelity, not "never analyzed"). Routed to **`generate-synthetic-data`** (execution). This skill never generates analyzed data. *(See the cross-skill note below.)*
 
@@ -134,7 +134,7 @@ Dispatched by the mentor at the seal (R1/R10 inbound) and re-entered for each st
 - **Data exists but is gated beyond the student's access.** Record the block specifically; route to the research teacher or faculty mentor (institutional access may exist); never substitute an unofficial copy. (Phase-1 scripted moment.)
 - **Cleaning would change the construct.** If the only way to make a variable usable distorts what it measures, that is an operationalization/validity problem surfacing late — loop back and report it rather than forcing the variable.
 - **The Stage-14 methodology needs generated data, not sourced data.** Out of scope by design — cede to `generate-synthetic-data` (shape E and the cross-shape synthetic uses). This skill acquires real data only.
-- **Student data / PII.** Out of scope by rule — this skill prepares public research datasets; student-generated data never enters shared analysis or any model. (Scraped/API corpora for shape D follow R7's consent-to-publicness line: identifiable-individual data needs IRB except PII individuals consented to making public.)
+- **Student data / PII.** Out of scope by rule — this skill prepares public research datasets; student-generated data never enters shared analysis or any model.
 
 ## Status
 **Promoted to `build/` 2026-06-29 (Tier 6, execution pipeline).** Reconciliations resolved (dispatch/handoff, R7/R13, R11 spot-checks, data-record home, R8 execution-regime write, menu-shape layer, escalation, Tier-label correction). Remaining build items, not gates on this skill:
