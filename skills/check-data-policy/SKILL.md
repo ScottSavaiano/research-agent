@@ -5,7 +5,12 @@ description: Confirms that nothing bars the agents from working with a data sour
 
 # Check Data Policy
 
-**Last edited:** 2026-07-14 (Cowork — **rewritten**. The first draft was defensive and gate-happy: it hunted for
+**Last edited:** 2026-07-19 (teacher-admin — **added the mandatory "Record it — WRITE THE FILES" step.** The
+first runtime test, 2026-07-14-authored/2026-07-19-run, passed read-don't-grep and CLEAR-default but the agent
+printed the evidence note to chat and never wrote `data/data-validity-log.md` — because the skill only *named*
+the file in a passive "Where it is recorded" list. Now there is an imperative two-write step (append the log,
+set `data_interaction_mode`) that runs before the closing line, framed as a failure to skip it. Prior: 2026-07-14
+(Cowork — **rewritten**. The first draft was defensive and gate-happy: it hunted for
 barriers instead of confirming there weren't any, and it would have buried students at Stage 5. This version has
 the opposite posture.)
 Source of truth: `design/data-source-llm-policy-registry.md`, `design/data-interaction-contract.md`.
@@ -148,6 +153,34 @@ mode.
 
 ---
 
+## Record it — WRITE THE FILES. This is a step, not a note. Do not skip it.
+
+> ⚠️ **Before you tell the student anything, you WRITE the determination to disk.** The chat message is not the
+> record — the file is. A determination that lives only in the conversation is lost at the next `/new`, and the
+> other two agents read the mode from the file, not from your chat. **Producing the evidence note in chat without
+> writing the file is a FAILURE of this skill, even when the mode is right.**
+
+Two writes, every time, in this order:
+
+**1. Write the evidence note to `data/data-validity-log.md`.** Use your `write_file`/`patch` tools directly (not a
+code-exec import). Read the current file first: if it has no block for *this* source yet, append the dated block
+below; if a block for this same source already exists (a re-check), replace it. **Write the block exactly once** —
+do not append a second copy of what you just wrote. Never clobber a *different* source's earlier block. This is the
+durable record; the block is the same one shown under "What you hand the student."
+
+**2. Set the mode in `project_paper_status.md`.** Change the `data_interaction_mode:` line from `null` (or its prior
+value) to the mode you determined — `clear`, `row-rule`, or `no-agent` (lowercase, matching the state-file's own
+comment). Read the file, replace that one line, write it back; do not touch anything else in it.
+
+**Only after BOTH files are written** do you show the student the evidence note and say your closing line. If you
+cannot write a file (missing `data/` folder, permissions), say so plainly and stop — do not pretend the record
+exists.
+
+*(What you never write: the student's weekly journal entry. That is their work — see Boundaries. You write the
+log and the state flag; the student writes the journal.)*
+
+---
+
 ## What you hand the student
 
 **Evidence, not prose.** The student writes the journal entry themselves — that is their work, and the STS AI Use
@@ -184,8 +217,9 @@ FOR YOUR JOURNAL (in your own words, this week):
   - what you found — nothing — and why that settles it
 ```
 
-**Then say, plainly:** *"That's it. You're clear. Put this in your journal this week — it becomes a sentence in
-your Methods later."*
+**Then — once the files are written (see "Record it" above) — say, plainly:** *"That's it. You're clear. I've
+logged it to your data-validity log. Put it in your journal this week too — it becomes a sentence in your Methods
+later."*
 
 ### The ROW-RULE case — same shape, plus the clause and why we comply.
 
@@ -197,9 +231,14 @@ aggregates.*
 
 ## Where it is recorded
 
-- **`data/data-validity-log.md`** — the durable record.
-- **`data_interaction_mode`** — the switch the agents read.
-- **The student's weekly journal** — in their own words, that week. `update-journal` prompts if it is missing.
+**You write the first two (see "Record it — WRITE THE FILES" above). The student writes the third.**
+
+- **`data/data-validity-log.md`** — the durable record. **You append the evidence block here — this is mandatory,
+  not optional.**
+- **`data_interaction_mode`** in `project_paper_status.md` — the switch all three agents read at session start.
+  **You set it** (`clear` / `row-rule` / `no-agent`).
+- **The student's weekly journal** — in their own words, that week. **You never write this.** `update-journal`
+  prompts if it is missing.
 
 ## Boundaries
 

@@ -21,8 +21,17 @@ name: research-agent
 
 # Version follows semver. v0.x while the agent is still being built out;
 # v1.0.0 is reserved for the first release that ships all Tier 2 skills.
-version: 0.6.4
+version: 0.6.5
 # Changelog:
+#   0.6.5 (2026-07-19) — check-data-policy now WRITES its determination. The skill named the durable record
+#     files but had no imperative write step, so a first runtime test (Gemma) read the terms in full and
+#     returned CLEAR correctly but only printed the evidence to chat — data/data-validity-log.md and the
+#     data_interaction_mode flag were left unset. Added a mandatory "Record it — WRITE THE FILES" step
+#     (append the evidence block to data/data-validity-log.md; set data_interaction_mode in
+#     project_paper_status.md) placed before the closing line and framed as skip=failure; step 1 now says to
+#     use write_file/patch directly and write the block exactly once. Re-tested: mode set 3/3 runs, log
+#     written 2/3 (residual is daily-model variance, not a skill defect). No change to the read-in-full /
+#     CLEAR-default posture. Behavioral fix to one skill; no other files touched.
 #   0.6.4 (2026-07-14) — IRB framing simplified in source-and-prepare-data and generate-synthetic-data: IRB
 #     attaches ONLY to data the student collects directly from human subjects; all public/secondary data is
 #     exempt. Removed the older "consent-to-publicness" wording. No behavioral change.
