@@ -39,7 +39,7 @@ Discovery draws on four channels, run with **topic-first** sequencing (assemble 
 
 ## What this skill writes to the workspace
 - **The two reading lists** (topic + methods) — candidate entries with their metadata (title, authors, year, venue, DOI, abstract, source-API/corpus/supplied **provenance**, citation count) and the **dual-purpose cross-flag** where an article serves both — discovery *owns* this flag (it builds the methods list off the topic list, so it is the skill that knows an article serves both); `literature-filter-and-verify` surfaces it as the 🔁 logo and may *additionally* set it for an article that ranks onto both lists at filter time (F1.3). *(Home — extend `reference_articles.md` vs. a dedicated reading-list surface — is the §11 flag above; proposed: a reading-list surface.)* It writes **candidates**, not the final included set — `literature-filter-and-verify` ranks, verifies, and triages them; `paper-engagement` reads them.
-- **`articles/`** — any supplied PDFs the student adds are staged here (the `fetch-articles` staging convention); raw PDFs git-ignored as elsewhere.
+- **`articles/`** — any supplied PDFs the student adds are staged here (the `fetch-articles` staging convention); raw PDFs stay out of Drive sync as elsewhere.
 
 ## Cross-agent handoff
 Inbound from the mentor at stage 7 (R1). Hands the assembled candidate set **forward to `literature-filter-and-verify`** (the next trio skill). Uses **`fetch-articles` (R7a, re-bundled into the research profile)** to stage supplied PDFs and resolve "add this" references. It does **not** return the student to the mentor — that return happens at the end of the trio, after `paper-engagement` (R1 return for the synthesis conversation).

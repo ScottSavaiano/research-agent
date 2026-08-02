@@ -21,8 +21,15 @@ name: research-agent
 
 # Version follows semver. v0.x while the agent is still being built out;
 # v1.0.0 is reserved for the first release that ships all Tier 2 skills.
-version: 0.6.5
+version: 0.7.0
 # Changelog:
+#   0.7.0 (2026-08-02) — DRIVE-MIRROR TRANSPORT CONVERSION + data placement. Workspace moves off
+#     git/GitHub onto Google Drive for Desktop (Mirror). source-and-prepare-data: raw microdata and the
+#     cleaned analytic dataset now stage in a LOCAL-ONLY folder OUTSIDE the mirrored workspace (Drive
+#     Mirror cannot exclude an in-folder subfolder); the synced data/ holds the record (Dataset Creation
+#     Log + cleaning script), not the bytes; articles/ now sync as personal-use copies. project-briefing:
+#     recent-activity read walks workspace file changes, not git history. literature-discovery + generate-
+#     synthetic-data reconciled to Drive-Mirror wording. No change to the data-integrity / ROW-RULE regime.
 #   0.6.5 (2026-07-19) — check-data-policy now WRITES its determination. The skill named the durable record
 #     files but had no imperative write step, so a first runtime test (Gemma) read the terms in full and
 #     returned CLEAR correctly but only printed the evidence to chat — data/data-validity-log.md and the
